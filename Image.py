@@ -1,15 +1,17 @@
-import queue
+import queue, time, os, base64, cv2
 import numpy as np
-import os
-import base64
-import cv2
+import PIL.Image
+from io import BytesIO
 
 
 class Image(object):
     def __init__(self):
         self.q = queue.Queue()
+        self.current_img = b''
 
     def push(self, imgdata):
+        if self.size() == 1000:
+            self.q.get()
         self.q.put(imgdata)
 
     def empty(self):
@@ -24,18 +26,25 @@ class Image(object):
     def __del__(self):
         pass
 
-    def base64_cv2(base64_str):
-        imgString = base64.b64decode(base64_str)
-        nparr = np.fromstring(imgString, np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        return image
+    def base64_cv2(self, base64_str):
+        base64_str = base64_str.split(',')[-1]
+        pl_img = PIL.Image.open(BytesIO(base64.b64decode(base64_str)))
+        x, y = pl_img.size
+        p = PIL.Image.new('RGBA', pl_img.size, (255,255,255))
+        p.paste(pl_img, (0,0,x,y), pl_img)
+        cv_img = cv2.cvtColor(np.asarray(p), cv2.COLOR_RGB2BGR)
+        return cv_img
 
     def get_frame(self):
+        # time.sleep(0.1)
         img = ''
         if not self.q.empty():
-            img = self.q.get()[1]
+            img = self.base64_cv2(self.q.get()[1])
         else:
-            return ''
-        base64_cv2(img)
+            if self.current_img == b'':
+                return self.current_img
+            else:
+                return self.current_img.tobytes()
         ret, jpeg = cv2.imencode('.jpg', img)
+        self.current_img = jpeg
         return jpeg.tobytes()

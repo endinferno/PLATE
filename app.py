@@ -14,26 +14,25 @@ def hello_world():
 
 @app.route('/sendData', methods=['POST'])
 def form_data():
-    print(request.remote_addr)
+    # print(request.remote_addr)
     if request.method == 'POST':
         image_list.push((request.remote_addr, request.get_json()['baseimg']))
+        # print(request.get_json()['baseimg'])
         print(image_list.size())
         return jsonify(status="success", data='123')
 
 def gen(img_list):
     while True:
         image = img_list.get_frame()
+        # print(image)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n')
-        #  yield image
 
 @app.route('/broadcast')
 def broadcast():
     if image_list.empty() == False:
         return Response(gen(image_list),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
-        # return render_template('broadcast.html', imgData = gen(image_list))
-        #  return Response(gen(image_list))
 
 
 if __name__ == '__main__':

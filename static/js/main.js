@@ -27,7 +27,7 @@ window.onload = function () {
   canvas.addEventListener("mousedown", doMouseDown, false);
   canvas.addEventListener("mousemove", doMouseMove, false);
   canvas.addEventListener("mouseup", doMouseUp, false);
-  var interval = self.setInterval("clock()", 1000);
+  var interval = self.setInterval("clock()", 10);
 };
 
 function getPointOnCanvas(canvas, x, y) {
