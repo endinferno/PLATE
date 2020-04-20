@@ -23,17 +23,17 @@ def form_data():
 def gen(img_list):
     while True:
         image = img_list.get_frame()
-        # yield (b'--frame\r\n'
-               # b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n')
-        yield image
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n')
+        #  yield image
 
 @app.route('/broadcast')
 def broadcast():
     if image_list.empty() == False:
-        # return Response(gen(image_list),
-                        # mimetype='multipart/x-mixed-replace; boundary=frame')
+        return Response(gen(image_list),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
         # return render_template('broadcast.html', imgData = gen(image_list))
-        return Response(gen(image_list))
+        #  return Response(gen(image_list))
 
 
 if __name__ == '__main__':

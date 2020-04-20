@@ -1,7 +1,9 @@
 import queue
 import numpy as np
-import os, base64
+import os
+import base64
 import cv2
+
 
 class Image(object):
     def __init__(self):
@@ -22,14 +24,18 @@ class Image(object):
     def __del__(self):
         pass
 
+    def base64_cv2(base64_str):
+        imgString = base64.b64decode(base64_str)
+        nparr = np.fromstring(imgString, np.uint8)
+        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        return image
+
     def get_frame(self):
         img = ''
         if not self.q.empty():
             img = self.q.get()[1]
         else:
             return ''
-        # imgdata = base64.b64decode(img)
-        # img_array = np.fromstring(imgdata,np.uint8)
-        # img = cv2.imdecode(img_array,cv2.COLOR_BGR2RGB)
-        # ret, jpeg = cv2.imencode('.jpg', imgdata)
-        return img
+        base64_cv2(img)
+        ret, jpeg = cv2.imencode('.jpg', img)
+        return jpeg.tobytes()
