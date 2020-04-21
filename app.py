@@ -17,7 +17,7 @@ def form_data():
     # print(request.remote_addr)
     if request.method == 'POST':
         image_list.push((request.remote_addr, request.get_json()['baseimg']))
-        # print(request.get_json()['baseimg'])
+        print(request.get_json()['baseimg'])
         print(image_list.size())
         return jsonify(status="success", data='123')
 
