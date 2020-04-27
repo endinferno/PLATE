@@ -1,0 +1,33 @@
+spring:
+  profiles:
+    active: dev
+    application:
+      name: login
+---
+spring:
+  profiles: dev
+
+server:
+  port: 8081
+
+---
+spring:
+  profiles: prod
+
+server:
+  address: localhost
+  port: 50783
+---
+spring:
+    data:
+      mongodb:
+        uri: mongodb://39.106.42.184:27017/test
+---
+spring:
+  mail:
+    host: smtp.qq.com
+    username: 617591732@qq.com
+    password: sbdagequujkebedh
+    port: 587
+    default-encoding: UTF-8
+    from: 617591732@qq.com
