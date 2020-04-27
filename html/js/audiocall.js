@@ -1,7 +1,44 @@
+var recordedChunks = []
+var mediaRecorder;
+var audioCtx;
+
+function visualize(stream) {
+	if (!audioCtx)
+		audioCtx = new AudioContext();
+	const source = audioCtx.createMediaStreamSource(stream);
+
+	const analyser = audioCtx.createAnalyser();
+	analyser.fftSize = 2048;
+	const bufferLength = analyser.frequencyBinCount;
+	const dataArray = new Uint8Array(bufferLength);
+
+	source.connect(analyser);
+}
+
+// 获取流
 function gotStream(stream) {
 	console.log('received local stream');
 	localStream = stream;
 	localVideo.srcObject = localStream;
+	mediaRecorder = new MediaRecorder(stream);
+	visualize(stream)
+	console.log(mediaRecorder);
+	mediaRecorder.ondataavailable = function(e) {
+		recordedChunks.push(e.data)
+	}
+	mediaRecorder.onstop = function(e) {
+		console.log('audio stop');
+		// TODO: audio 名字待定
+		let audioName = '123';
+		const audioBlob = new Blob(recordedChunks, {
+			type: "video/mp4"
+		});
+		// TODO: 传输到后台保存
+		recordedChunks = []
+		mediaRecorder.start();
+	}
+	mediaRecorder.start();
+
 }
 //开启本地音频设备
 function audioVideoStart() {
@@ -50,15 +87,19 @@ function audioVideoRegisterButtonAction() {
 						modal: true,
 						buttons: {
 							"Accept": function() {
-								$(this).dialog("close");
+								$(this).dialog(
+									"close");
 								sendMessage(
 									peer,
 									localConn,
-									msg.to, msg.from,
-									"accept", null);
+									msg.to,
+									msg.from,
+									"accept",
+									null);
 							},
 							Cancel: function() {
-								$(this).dialog("close");
+								$(this).dialog(
+									"close");
 							}
 						}
 					});
@@ -72,8 +113,10 @@ function audioVideoRegisterButtonAction() {
 						.from), localStream);
 					call.on('stream', function(stream) {
 						console.log(
-							'received remote stream');
-						remoteVideo.srcObject = stream;
+							'received remote stream'
+						);
+						remoteVideo.srcObject =
+							stream;
 						sendMessage(
 							peer,
 							localConn,
@@ -92,7 +135,8 @@ function audioVideoRegisterButtonAction() {
 						console.log(
 							'received remote stream'
 						);
-						remoteVideo.srcObject = stream;
+						remoteVideo.srcObject =
+							stream;
 					});
 				}
 				canvasRegisterButtonProcess(msg);
@@ -100,7 +144,6 @@ function audioVideoRegisterButtonAction() {
 		});
 	}
 }
-
 // call按键的事件
 function audioVideoCallButtonAction() {
 	if (txtTargetId.value.length == 0) {

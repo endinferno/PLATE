@@ -1,3 +1,5 @@
+// 获得用户ID
+// TODO: 还需要修改，使用用户的UUID
 hashCode = function(str) {
 	var hash = 0;
 	if (str.length == 0) return hash;
@@ -8,7 +10,7 @@ hashCode = function(str) {
 	}
 	return hash;
 }
-
+// P2P 发送数据
 function sendMessage(peer, conn, from, to, action, data) {
 	if (peer == null) {
 		return;
@@ -34,7 +36,7 @@ function sendMessage(peer, conn, from, to, action, data) {
 		console.log(message);
 	}
 }
-
+// 处理异常
 function handleError(err) {
 	console.log('Error Occurred : ', err.message, err.name);
 }

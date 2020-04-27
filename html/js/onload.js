@@ -7,7 +7,7 @@ function isMediaAvailable() {
 	}
 	return true;
 }
-
+// window onload 事件
 window.onload = function() {
 	if (isMediaAvailable() == false)
 		return;
@@ -19,6 +19,7 @@ window.onload = function() {
 
 	registerButtonInit();
 	callButtonInit();
+	recorderButtonInit();
 	canvasInit();
 	audioVideoStart();
 

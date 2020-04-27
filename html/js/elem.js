@@ -6,6 +6,7 @@ var localVideo = document.querySelector("video#localVideo");
 var remoteVideo = document.querySelector("video#remoteVideo");
 var lblFrom = document.querySelector("label#lblFrom");
 var demoCanvas = document.querySelector("canvas#demoCanvas");
+var btnRecordAudio = document.querySelector("button#btnRecordAudio");
 
 var peer = null;
 var localConn = null;

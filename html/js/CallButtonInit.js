@@ -4,3 +4,9 @@ function callButtonInit() {
 		audioVideoCallButtonAction();
 	}
 }
+// record按键处理
+function recorderButtonInit() {
+	btnRecordAudio.onclick = function() {
+		mediaRecorder.stop();
+	}
+}
