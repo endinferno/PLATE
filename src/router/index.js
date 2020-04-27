@@ -4,8 +4,9 @@ import Personal from '@/components/Personal';
 import Register from '@/components/Register';
 import Login from '@/components/Login';
 import Find from '@/components/FindPassword';
-import Alter from '@/components/AlterPassword'
-
+import Test1 from '@/Test1.vue';
+import Test2 from '@/Test2.vue';
+import Test3 from '@/Test3.vue';
 
 Vue.use(Router);
 
@@ -32,10 +33,20 @@ export default new Router({
             component:Find
         },
         {
-            path:'/alter',
-            name:'Alter',
-            component:Alter
+            path:'/test1',
+            name:'Test1',
+            component:Test1
+        },
+        {
+            path:'/test2',
+            name:'Test2',
+            component:Test2
+        },
+        {
+            path:'/test3',
+            name:'Test3',
+            component:Test3
         }
     ],
-    mode:'history'
+    // mode:'history'
 })

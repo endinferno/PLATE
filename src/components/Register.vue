@@ -10,8 +10,11 @@
           status-icon
           :model="user"
         >
-          <el-form-item prop="username" label="用户名">
-            <el-input v-model="user.username" placeholder="请输入用户名" prefix-icon></el-input>
+          <el-form-item prop="email" label="邮箱">
+            <el-input v-model="user.email" placeholder="请输入邮箱" prefix-icon></el-input>
+          </el-form-item>
+           <el-form-item prop="name" id="name" label="昵称">
+            <el-input v-model="user.name" placeholder="请输入昵称"></el-input>
           </el-form-item>
           <el-form-item prop="password" id="password" label="密码">
             <el-input v-model="user.password" show-password placeholder="请输入密码"></el-input>
@@ -19,16 +22,15 @@
           <el-form-item prop="checkpass" id="checkpass" label="确认密码">
             <el-input v-model="user.checkpass" show-password placeholder="请输入密码"></el-input>
           </el-form-item>
-          <el-form-item prop="email" id="email" label="验证邮箱">
-            <el-input v-model="user.email" placeholder="请输入邮箱"></el-input>
-          </el-form-item>
           <el-form-item prop="code" id="code" label="验证码">
-            <el-input v-model="user.code" placeholder="请输入验证码"></el-input>
+            <el-input v-model="user.code" placeholder="请输入验证码" class='checkCode'></el-input>
+            <span class="button_true" @click="getCode()" v-show="show">获取验证码</span>
+            <span class="button_false" v-show="!show">{{total}}s后重新发送</span>
           </el-form-item>
         </el-form>
       </el-row>
       <el-row>
-        <el-button type="primary" @click="doRegister()">立即注册</el-button>
+        <el-button type="primary" @click="doRegister('loginForm')">立即注册</el-button>
         <el-button @click="doReturn()">返回</el-button>
       </el-row>
     </div>
@@ -39,31 +41,6 @@ import axios from "axios";
 export default {
   name: "Register",
   data: function() {
-    // var validateUsername = (rule, value, callback) => {
-    //   let uPattern = /^[a-zA-Z0-9_-]{8,16}$/; //8到16位 字母数字下划线减号
-    //   if (value === '') {
-    //     return callback(new Error("用户名不能为空"));
-    //   }
-    //   else if (uPattern.test(value)) {
-    //     console.log(value);
-    //     console.log(uPattern.test(value));
-    //     callback();
-    //   } else {
-    //     callback(new Error("用户名由8到16位字母数字下划线或减号组成"));
-    //   }
-    // };
-    // var validatePass = (rule,value,callback) => {
-    //     var pPattern = /^.*(?=.{6,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/;
-    //     if(value === ''){
-    //         return callback(new Error('请输入密码'));
-    //     }
-    //     else if(pPattern.test(value)){
-    //         callback();
-    //     }
-    //     else{
-    //         callback(new Error("密码必须大于等于6位且包含大写字母小写字母和数字"));
-    //     }
-    // };
     var validatePass2 = (rule, value, callback) => {
         if(value === ''){
             callback(new Error('请再次输入密码'));
@@ -75,37 +52,24 @@ export default {
             callback();
         }
     };
-    // var validateCode = (rule,value,callback) => {
-    //     if(value.length !== 4){
-    //         callback(new Error('验证码为4位数'));
-    //     }
-    //     else{
-    //         callback();
-    //     }
-    // };
-    // var validateEmail = (rule,value,callback) => {
-    //     var ePattern = /^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+\.([A-Za-z]{2,4})$/;
-    //     if(value === ''){
-    //         callback(new Error('请输入邮箱'));
-    //     }
-    //     else if(ePattern.test(value)){
-    //         callback();
-    //     }
-    //     else{
-    //         callback(new Error('邮箱格式不正确！'));
-    //     }
-    // }
     return {
       user: {
-        username: "",
+        email: "",
+        name: "",
         password: "",
         checkpass: "",
-        email: "",
-        code: ""
+        code: "",
       },
+      total: 30,
+      show: true, 
+      timer: null,
       rules: {
-        username: [
-          { required: true, message: "请输入用户名", trigger:'blur' },
+        email: [
+            {required:true,message:"请输入邮箱", trigger:'blur'},
+            {pattern:/^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+.([A-Za-z]{2,4})$/,message:"请输入合法邮箱！", trigger:'blur'}
+        ],
+        name: [
+          { required: true, message: "请输入昵称", trigger:'blur' },
           { pattern: /^[a-zA-Z0-9_-]{8,16}$/, message:"用户名必须由8到16位字母数字下划线或减号组成", trigger:'blur'}
         ],
         password: [
@@ -114,44 +78,96 @@ export default {
         ],
         checkpass: [
             {required:true,message:"请再次输入密码", trigger:'blur'},
-            // {pattern:new RegExp("^"+this.user.password+"$"),message:"两次输入不一致！", trigger:'blur'}
             {validator:validatePass2,trigger:'blur'}
-        ],
-        email: [
-            {required:true,message:"请输入邮箱", trigger:'blur'},
-            {pattern:/^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+.([A-Za-z]{2,4})$/,message:"请输入合法邮箱！", trigger:'blur'}
         ],
         code: [
             {required:true,message:"请输入验证码", trigger:'blur'},
-            {len:4,message:"验证码长度为4位", trigger:'blur'}
+            {len:6,message:"验证码长度为6位", trigger:'blur'}
         ]
       }
     };
   },
   methods: {
+    isEmail(str){
+      var re=/^([A-Za-z0-9_\-.])+@([A-Za-z0-9_\-.])+.([A-Za-z]{2,4})$/;
+      return re.test(str)
+    },
     doReturn() {
       this.$router.push("/");
     },
-    doRegister(){
-        axios
-        .post("/register/",{
-            name:this.user.username,
-            password:this.user.password,
-            email:this.user.email,
-            code:this.user.code
+    countDown() {
+      const COUNT = 30
+      if(!this.timer){
+        this.total = COUNT
+        this.show = false
+        this.timer = setInterval(() => {
+          if (this.total > 0 && this.total <= COUNT) {
+            this.total--;
+          } else {
+            this.show = true
+            clearInterval(this.timer);
+            this.timer = null;
+          }
+        }, 1000)
+      }
+      else{
+        this.show = true
+        clearInterval(timer)
+        this.timer = null
+      }
+    },
+    getCode() {
+      if(!this.isEmail(this.user.email)){
+        this.$message.error('邮箱错误，请重新输入');
+        return
+      }
+      this.countDown()//这里在联调完成后应该放入success
+      axios
+        .post("/api/user/register/code",{
+            email:this.user.email
         })
         .then(res => {
-            if(res.data.status === 200){
+            if(res.status === 200){
+                this.$message({
+                    message:'登录邮箱查看验证码',
+                    type:'success'
+                });
+            }else{
+                this.$message.error(res.data.message);
+            }
+        })
+        .catch(failResponse=>{
+             this.$message.error('网络错误');
+         })
+    },
+    doRegister(formName){
+      this.$refs[formName].validate((valid) => {
+        if(valid){
+          axios.post("/api/user/register",{
+            email:this.user.email,
+            name:this.user.name,
+            password:this.user.password,
+            validateRegistration:this.user.code
+          })
+          .then(res => {
+            if(res.status === 200){
                 this.$message({
                     message:'注册成功',
                     type:'success'
                 });
                 this.$router.push('/');
             }else{
-                this.$message.error('注册失败');
-                this.$refs[this.user].resetFields();
+                this.$message.error(res.data.message);
             }
-        })
+          })
+          .catch(failResponse=>{
+             this.$message.error('网络错误');
+           })
+        }
+        else{
+          this.$message.error('信息不合法');
+        }
+      })
     }
   }
 };
@@ -205,5 +221,23 @@ a {
 }
 .el-form-item {
   margin-top: 20px;
+}
+.checkCode {
+  width: 150px;
+  float: left;
+}
+.button_true {
+  border-radius: 5px;
+  background-color: #3399ff;
+  color: white;
+  cursor: pointer;
+  padding: 10px;
+}
+.button_false {
+  border-radius: 5px;
+  background-color: #bbbbbb;
+  color:  white;
+  cursor: default;
+  padding: 10px;
 }
 </style>
