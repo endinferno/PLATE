@@ -2,10 +2,12 @@ var zr = zrender.init(document.getElementById('imageBoard'));
 var group = new zrender.Group({
     slent:true
 });
+var level = 0;
 var position = [];
 var mes = {
     type : 3,
     src : "",
+    level : 0,
     position:[]
 };
 
@@ -40,6 +42,7 @@ function showImage(src) {
                 width: 150,
                 height: 150
             },
+            zlevel : level++,
             position:[200,200],
             draggable: true
         });
@@ -56,6 +59,7 @@ function showImage(src) {
             });
             mes.type = 4;
             mes.position = position;
+            mes.level = img.zlevel;
             sendMessage(
                 peer,
                 localConn,
@@ -77,10 +81,9 @@ function imageBoardProcess(msg) {
         }
         else if(msg.data.type === 4){
             group.eachChild(function (item) {
-                if(item.position[0] === msg.data.position[0].x && item.position[1] === msg.data.position[0].y) {
+                if(item.zlevel === msg.data.level) {
                     item.attr({
                         position:[msg.data.position[1].x,msg.data.position[1].y],
-                        // draggable: true
                     });
                 }
            })
@@ -89,6 +92,7 @@ function imageBoardProcess(msg) {
             group.removeAll();
             zr.flush();
             zr.painter.clear();
+            level = 0;
         }
 	}
 }
@@ -98,6 +102,7 @@ function clearImage() {
     zr.flush();
     zr.painter.clear();
     mes.type = 5;
+    level = 0;
     sendMessage(
                 peer,
                 localConn,
