@@ -7,6 +7,7 @@ import Find from '@/components/FindPassword';
 import Test1 from '@/Test1.vue';
 import Test2 from '@/Test2.vue';
 import Test3 from '@/Test3.vue';
+import HomePage from '@/HomePage';
 
 Vue.use(Router);
 
@@ -46,6 +47,11 @@ export default new Router({
             path:'/test3',
             name:'Test3',
             component:Test3
+        },
+        {
+            path:'/homepage',
+            name:'HomePage',
+            component:HomePage
         }
     ],
     // mode:'history'
