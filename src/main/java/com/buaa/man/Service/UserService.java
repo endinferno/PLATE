@@ -1,5 +1,7 @@
 package com.buaa.man.Service;
 
+import com.buaa.man.Dao.Redis;
+import com.buaa.man.Dao.Room;
 import com.buaa.man.Dao.User;
 import com.buaa.man.Util.AesEncryptUtils;
 import com.buaa.man.Util.StringUtil;
@@ -7,10 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -116,5 +119,54 @@ public class UserService {
             user.validateRetrieve = code;
             mongoTemplate.save(user);
         }
+    }
+
+    public boolean updateFavoriteRoom(String uid, String rid) {
+        Query query1 = new Query(Criteria.where("uid").is(uid));
+        User user = mongoTemplate.findOne(query1,User.class);
+        Query query2 = new Query(Criteria.where("rid").is(rid));
+        Room room = mongoTemplate.findOne(query2,Room.class);
+        if (user != null && room != null) {
+            Map<String, Long> collect = user.favoriteRoom
+                .stream()
+                .map(entry -> Pair.of(entry.rid, entry.timeStamp))
+                .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+            collect.put(rid, (new Date()).getTime());
+
+            user.favoriteRoom = collect.entrySet().stream().map(entry ->{
+                Redis redis = new Redis();
+                redis.rid = entry.getKey();
+                redis.timeStamp = entry.getValue();
+                return redis;
+            }).sorted(Comparator.comparingLong((Redis o) -> o.timeStamp).reversed()).collect(Collectors.toList());
+            mongoTemplate.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean updateHistoryRoom(String uid, String rid) {
+        Query query1 = new Query(Criteria.where("uid").is(uid));
+        User user = mongoTemplate.findOne(query1,User.class);
+        Query query2 = new Query(Criteria.where("rid").is(rid));
+        Room room = mongoTemplate.findOne(query2,Room.class);
+        if (user != null && room != null) {
+            Map<String, Long> collect = user.historyRoom
+                    .stream()
+                    .map(entry -> Pair.of(entry.rid, entry.timeStamp))
+                    .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
+            collect.put(rid, (new Date()).getTime());
+
+            user.historyRoom = collect.entrySet().stream().map(entry ->{
+                Redis redis = new Redis();
+                redis.rid = entry.getKey();
+                redis.timeStamp = entry.getValue();
+                return redis;
+            }).sorted(Comparator.comparingLong((Redis o) -> o.timeStamp).reversed()).limit(10)
+                    .collect(Collectors.toList());
+            mongoTemplate.save(user);
+            return true;
+        }
+        return false;
     }
 }

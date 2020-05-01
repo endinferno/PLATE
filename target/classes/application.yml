@@ -21,7 +21,9 @@ server:
 spring:
     data:
       mongodb:
-        uri: mongodb://39.106.42.184:27017/test
+        #uri: mongodb://39.106.42.184:27017/test
+        #uri: mongodb://man:233@121.199.55.52:27017/test
+        uri: mongodb://man:233@39.106.42.184:27017/test
 ---
 spring:
   mail:

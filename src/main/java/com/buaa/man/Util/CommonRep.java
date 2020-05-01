@@ -2,7 +2,7 @@ package com.buaa.man.Util;
 
 public class CommonRep {
     public String message;
-    public String date;
+    public String data;
 
     public CommonRep() {
         message = "success";
@@ -12,7 +12,7 @@ public class CommonRep {
         this.message = message;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setData(String data) {
+        this.data = data;
     }
 }

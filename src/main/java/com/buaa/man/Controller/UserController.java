@@ -1,6 +1,7 @@
 package com.buaa.man.Controller;
 
 import com.alibaba.fastjson.JSON;
+import com.buaa.man.Dao.Room;
 import com.buaa.man.Dao.User;
 import com.buaa.man.Service.MailService;
 import com.buaa.man.Service.UserService;
@@ -87,7 +88,7 @@ public class UserController {
 			return new CommonRep("用户名或者密码错误");
         }
         CommonRep rep = new CommonRep();
-        rep.setDate(login.uid);
+        rep.setData(login.uid);
         return rep;
     }
 
@@ -101,7 +102,7 @@ public class UserController {
 			response.setStatus(250);
 			return new CommonRep("用户不存在");
 		}
-        rep.setDate(JSON.toJSONString(u));
+        rep.setData(JSON.toJSONString(u));
         return rep;
     }
 
@@ -129,24 +130,56 @@ public class UserController {
     @PostMapping(value = "/retrieve")
 	@ResponseBody
 	@ApiOperation(value = "找回" , notes = "重置密码")
-    public CommonRep retrieve(@RequestBody User user, HttpServletResponse response) {
+	public CommonRep retrieve(@RequestBody User user, HttpServletResponse response) {
 		if (StringUtil.isNullOrEmpty(user.email) || StringUtil.isNullOrEmpty(user.password)
-		|| StringUtil.isNullOrEmpty(user.validateRetrieve)) {
+				|| StringUtil.isNullOrEmpty(user.validateRetrieve)) {
 			response.setStatus(250);
 			return new CommonRep("用户名或者密码错误");
 		}
-        if(!userService.getRegistrationStatus(user.email))
-        {
-            response.setStatus(250);
-            return new CommonRep("账号未注册");
-        }
+		if(!userService.getRegistrationStatus(user.email))
+		{
+			response.setStatus(250);
+			return new CommonRep("账号未注册");
+		}
 		String retrieveCode = userService.getRetrieveCode(user.email);
 		if (!retrieveCode.equals(user.validateRetrieve)) {
 			response.setStatus(250);
 			return new CommonRep("验证码错误");
 		}
-        userService.updatePsw(user);
-        return new CommonRep();
-    }
+		userService.updatePsw(user);
+		return new CommonRep();
+	}
+
+	@PutMapping(value = "/historyRoom")
+	@ResponseBody
+	@ApiOperation(value = "添加" , notes = "添加历史房间")
+	public CommonRep putHistoryRoom(@RequestBody User user, @RequestBody Room room, HttpServletResponse response) {
+		if (StringUtil.isNullOrEmpty(user.uid) || StringUtil.isNullOrEmpty(room.rid)) {
+			response.setStatus(250);
+			return new CommonRep("用户或房间不存在");
+		}
+		if (userService.updateHistoryRoom(user.uid, room.rid)) {
+			return new CommonRep();
+		} else {
+			response.setStatus(250);
+			return new CommonRep("用户或房间不存在");
+		}
+	}
+
+	@PutMapping(value = "/favoriteRoom")
+	@ResponseBody
+	@ApiOperation(value = "添加" , notes = "添加喜爱房间")
+	public CommonRep putFavoriteRoom(@RequestBody User user, @RequestBody Room room, HttpServletResponse response) {
+		if (StringUtil.isNullOrEmpty(user.uid) || StringUtil.isNullOrEmpty(room.rid)) {
+			response.setStatus(250);
+			return new CommonRep("用户或房间不存在");
+		}
+		if (userService.updateFavoriteRoom(user.uid, room.rid)) {
+			return new CommonRep();
+		} else {
+			response.setStatus(250);
+			return new CommonRep("用户或房间不存在");
+		}
+	}
 
 }

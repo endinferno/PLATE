@@ -15,8 +15,8 @@ public class User {
     public String email;
     public String password;
     public String nickName;
-    public List<String> favoriteRoom;
-    public List<String> historyRoom;
+    public List<Redis> favoriteRoom;
+    public List<Redis> historyRoom;
     // 注册验证
     public String validateRegistration;
     // 找回验证
