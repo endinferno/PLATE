@@ -15,6 +15,9 @@ public class User {
     public String email;
     public String password;
     public String nickName;
+    public String birthday;
+    public String gender;
+    public String signature;
     public List<Redis> favoriteRoom;
     public List<Redis> historyRoom;
     // 注册验证

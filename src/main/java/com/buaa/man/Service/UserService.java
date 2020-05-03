@@ -2,16 +2,21 @@ package com.buaa.man.Service;
 
 import com.buaa.man.Dao.Redis;
 import com.buaa.man.Dao.Room;
+import com.buaa.man.Dao.UploadFile;
 import com.buaa.man.Dao.User;
 import com.buaa.man.Util.AesEncryptUtils;
 import com.buaa.man.Util.StringUtil;
+import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -89,6 +94,9 @@ public class UserService {
             user1.uid = user.uid;
             user1.favoriteRoom = user.favoriteRoom;
             user1.historyRoom = user.historyRoom;
+            user1.birthday = user.birthday;
+            user1.gender = user.gender;
+            user1.signature = user.signature;
             return user1;
         }
         return null;
@@ -129,7 +137,7 @@ public class UserService {
         if (user != null && room != null) {
             Map<String, Long> collect = user.favoriteRoom
                 .stream()
-                .map(entry -> Pair.of(entry.rid, entry.timeStamp))
+                .map(entry -> {return Pair.of(entry.rid, entry.timeStamp);})
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getSecond));
             collect.put(rid, (new Date()).getTime());
 
@@ -168,5 +176,78 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    public Pair<Boolean, String> uploadUser(String signature, String birthday, String nickName, String gender, String uid, MultipartFile file) {
+        Query query = new Query(Criteria.where("uid").is(uid));
+        User one = mongoTemplate.findOne(query, User.class);
+        if (one == null) {
+            return Pair.of(false, "");
+        }
+	    String image = uploadImage(one, file);
+        User updateUser = new User();
+        updateUser.signature = signature;
+        updateUser.birthday = birthday;
+        updateUser.nickName = nickName;
+        updateUser.gender = gender;
+        String photoImage = uploadUserInfo(one, updateUser, image);
+        return Pair.of(true, photoImage);
+    }
+
+    private String uploadUserInfo(User user,User updateUser, String image) {
+        user.signature = updateUser.signature;
+        user.birthday = updateUser.birthday;
+        user.nickName = updateUser.nickName;
+        user.gender = updateUser.gender;
+        if (!StringUtil.isNullOrEmpty(image)) {
+            user.photoImage = image;
+        }
+        mongoTemplate.save(user);
+        return user.photoImage;
+    }
+
+    private String uploadImage(User user, MultipartFile file) {
+	    if (file != null) {
+            Query query = new Query(Criteria.where("uid").is(user.uid));
+            String fileName = file.getOriginalFilename();
+            String url;
+            try {
+                UploadFile uploadFile1 = mongoTemplate.findOne(query, UploadFile.class);
+                if (uploadFile1 != null) {
+                    Update update = new Update();
+                    update.set("name", fileName);
+                    update.set("CreatedTime", new Date());
+                    update.set("Content", new Binary(file.getBytes()));
+                    update.set("ContentType", file.getContentType());
+                    update.set("Size", file.getSize());
+                    mongoTemplate.updateFirst(query, update, UploadFile.class);
+                    url = "http://39.106.42.184:8080/api/user/image/" + uploadFile1.getId();
+                } else {
+                    UploadFile uploadFile = new UploadFile();
+                    uploadFile.setName(fileName);
+                    uploadFile.setUid(user.uid);
+                    uploadFile.setCreatedTime(new Date());
+                    uploadFile.setContent(new Binary(file.getBytes()));
+                    uploadFile.setContentType(file.getContentType());
+                    uploadFile.setSize(file.getSize());
+                    uploadFile.setId(UUID.randomUUID().toString());
+                    UploadFile savedFile = mongoTemplate.save(uploadFile);
+                    url = "http://39.106.42.184:8080/api/user/image/" + savedFile.getId();//访问地址
+                }
+            } catch (IOException e) {
+                return "";
+            }
+            return url;
+        }
+        return "";
+    }
+
+    public byte[] getImage(String id) {
+        byte[] data = null;
+        UploadFile file = mongoTemplate.findById(id, UploadFile.class);
+        if(file != null){
+            data = file.getContent().getData();
+        }
+        return data;
     }
 }

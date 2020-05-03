@@ -2,6 +2,7 @@ package com.buaa.man.Controller;
 
 import com.alibaba.fastjson.JSON;
 import com.buaa.man.Dao.Room;
+import com.buaa.man.Dao.UploadFile;
 import com.buaa.man.Dao.User;
 import com.buaa.man.Service.MailService;
 import com.buaa.man.Service.UserService;
@@ -11,9 +12,15 @@ import com.buaa.man.Util.StringUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.security.Signature;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
@@ -87,9 +94,10 @@ public class UserController {
 			response.setStatus(250);
 			return new CommonRep("用户名或者密码错误");
         }
-        CommonRep rep = new CommonRep();
-        rep.setData(login.uid);
-        return rep;
+		User login1 = userService.getUserByUid(login.uid);
+		CommonRep commonRep =new CommonRep();
+		commonRep.setData(JSON.toJSONString(login1));
+		return commonRep;
     }
 
     @GetMapping(value = "getUserInfo/{uid}")
@@ -182,4 +190,37 @@ public class UserController {
 		}
 	}
 
+	@PostMapping(value = "/updateUser")
+	@ResponseBody
+	@ApiOperation(value = "修改用户" , notes = "修改用户信息")
+	public CommonRep putFavoriteRoom(@RequestParam(value = "signature") String signature,
+									 @RequestParam(value = "birthday") String birthday,
+									 @RequestParam(value = "nickName") String nickName,
+									 @RequestParam(value = "gender") String gender,
+									 @RequestParam(value = "uid") String uid,
+									 @RequestParam(value = "image") MultipartFile file,
+									 HttpServletResponse response) {
+		if (StringUtil.isNullOrEmpty(uid)) {
+			response.setStatus(250);
+			return new CommonRep("用户不存在");
+		}
+		Pair<Boolean, String> booleanStringPair =
+			userService.uploadUser(signature, birthday, nickName, gender, uid, file);
+		if (booleanStringPair.getFirst()) {
+			CommonRep commonRep = new CommonRep();
+			Map<String, String> image = new HashMap<>();
+			image.put("image", booleanStringPair.getSecond());
+			commonRep.setData(JSON.toJSONString(image));
+			return commonRep;
+		} else {
+			response.setStatus(250);
+			return new CommonRep("用户不存在");
+		}
+	}
+
+	@CrossOrigin
+	@GetMapping(value = "/image/{id}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+	public byte[] image(@PathVariable String id) {
+    	return userService.getImage(id);
+	}
 }

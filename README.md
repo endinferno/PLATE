@@ -43,6 +43,9 @@
     "string"
   ],
   "nickName": "string",
+  "signature": "String",
+  "birthday": "String",
+  "gender": "String",
   "photoImage": "string",
   "uid": "string"
 }} 
@@ -82,3 +85,26 @@
          }
 3. 搜索所符合条件的房间，并按照一种特定的方式对搜索结果排序（数据库里的默认排序如果不会出现顺序问题也可），然后返回搜索结果总数量和第n页的m项的具体内容。
 4. 发送失败状态码250返回{"message": "参数错误","data": null}
+##10. 修改用户信息 POST
+###url:api/user/updateUser
+1. 传参 formData
+KEY        VALUE
+image      文件
+signature  string
+birthday   string
+nickName   string
+gender     string
+uid        string
+2. 发送成功状态码200 返回{
+    "message": "success",
+    "data": "{\"image\":\"http://39.106.42.184:8080/api/user/image/c4ee58be-5d36-44bd-96b5-39db6cacc304\"}"
+}
+3. 发送失败状态码250 返回{
+    "message": "用户不存在",
+    "data": null
+}
+##11. 获取用户图片 GET
+###url:api/user/image/{id}
+1. 传参 图片文件id
+2. 发送成功状态码200 返回图片字节
+3. 发送失败状态码200 返回空字节
