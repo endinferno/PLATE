@@ -139,6 +139,7 @@ function audioVideoRegisterButtonAction() {
 					});
 				}
 				canvasRegisterButtonProcess(msg);
+				imageBoardProcess(msg);
 			});
 		});
 	}
