@@ -14,7 +14,6 @@ function visualize(stream) {
 
 	source.connect(analyser);
 }
-
 // 获取流
 function gotStream(stream) {
 	console.log('received local stream');
