@@ -13,7 +13,8 @@ var localConn = null;
 var localStream = null;
 //连接到peerjs服务器的选项
 var connOption = {
-	host: 'localhost',
+	//secure: true,
+	host: 'www.plate.pub',
 	port: 9000,
 	path: '/',
 	debug: 3
