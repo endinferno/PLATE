@@ -36,7 +36,7 @@
 					</canvas>
 				</div>
 				<div>
-        			画笔颜色：
+					画笔颜色：
 					<button id="red" style="height: 20px;" onclick="changePenColor('#CD0000')">red</button>
 					<button id="green" style="height: 20px;" onclick="changePenColor('#7FFF00')">green</button>
 					<button id="blue" style="height: 20px;" onclick="changePenColor('#0000FF')">blue</button>
@@ -46,9 +46,9 @@
 					<button id="black" style="height: 20px;" onclick="changePenColor('#000000')">black</button>
 					<button id="white" style="height: 20px;" onclick="changePenColor('#FFFFFF')">white</button>
 				</div>
-    			<div>
+				<div>
 					画笔宽度：
-					<input id="penWidth" type="range" min="1" max="10" value="2" onchange="changePenWidth(value)"/>
+					<input id="penWidth" type="range" min="1" max="10" value="2" onchange="changePenWidth(value)" />
 				</div>
 				<button id="clear" style="height: 20px;" onclick="clearAll()">clear</button>
 				<button id="eraser" style="height: 20px;" onclick="changeToEraser()">eraser</button>
@@ -60,7 +60,7 @@
 			<td></td>
 		</tr>
 		<tr>
-			<div id="imageBoard" style="width:500px;height:500px;border: 1px solid teal" ></div>
+			<div id="imageBoard" style="width:500px;height:500px;border: 1px solid teal"></div>
 			<div class="warp">
 				<div class="warp-content"></div>
 				<input type="file" id="file" />
@@ -85,12 +85,32 @@
 		<p><span class="ui-icon ui-icon-info" style="float:left; margin:12px 12px 20px 0;"></span><label id="lblFrom"></label> is calling you, do you accept?</p>
 	</div>
 
+
+
+	<!-- 这部分是聊天窗口部分 -->
+	<table>
+		<tr>
+			<td align="right">
+				<label for="txtMsg">message:</label>
+				<input type="text" id="txtMsg" class="w120" />
+				<button id="btnSend">send</button>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" class="chatMessageBox" id="tdBox">
+			</td>
+		</tr>
+	</table>
+
+	<!-- 这部分是导入的js包 -->
 	<script src="js/elem.js"></script>
 	<script src="js/base.js"></script>
 	<script src="js/audiocall.js"></script>
 	<script src="js/canvascall.js"></script>
+	<script src="js/infocall.js"></script>
 	<script src="js/RegisterButtonInit.js"></script>
 	<script src="js/CallButtonInit.js"></script>
+	<script src="js/infoSendButtonInit.js"></script>
 	<script src="js/onload.js"></script>
 	<script src="js/imageboard.js"></script>
 

@@ -17,6 +17,7 @@ window.onload = function() {
 	// $("#remoteVideo").hide()
 	$("#dialog-confirm").hide();
 
+	infoSendButtonInit();
 	registerButtonInit();
 	callButtonInit();
 	recorderButtonInit();

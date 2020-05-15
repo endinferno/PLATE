@@ -7,6 +7,9 @@ var remoteVideo = document.querySelector("video#remoteVideo");
 var lblFrom = document.querySelector("label#lblFrom");
 var demoCanvas = document.querySelector("canvas#demoCanvas");
 var btnRecordAudio = document.querySelector("button#btnRecordAudio");
+// 聊天窗口
+var txtMsg = document.querySelector("input#txtMsg");
+var btnSend = document.querySelector("button#btnSend");
 
 var peer = null;
 var localConn = null;

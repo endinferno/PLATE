@@ -140,6 +140,7 @@ function audioVideoRegisterButtonAction() {
 				}
 				canvasRegisterButtonProcess(msg);
 				imageBoardProcess(msg);
+				messageProcess(msg);
 			});
 		});
 	}
