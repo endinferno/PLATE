@@ -10,6 +10,7 @@ var btnRecordAudio = document.querySelector("button#btnRecordAudio");
 // 聊天窗口
 var txtMsg = document.querySelector("input#txtMsg");
 var btnSend = document.querySelector("button#btnSend");
+var mystatus = document.querySelector("label#audioVolumn");
 
 var peer = null;
 var localConn = null;
